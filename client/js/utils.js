@@ -19,8 +19,11 @@ const url = 'http://127.0.0.1:1337';
 
 module.exports = {
   fetchChannel(cb) {
-    Vue.http.get('/getUrl').then((res) => {
+    Vue.http.get('/getUrl')
+    .then((res) => {
       cb(res)
+    }).catch((res) => {
+      throw res;
     });
   },
   // Fetches data from database

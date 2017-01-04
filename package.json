@@ -56,6 +56,7 @@
     "vue": "^2.1.8",
     "vue-avatar-component": "^1.2.4",
     "vue-resource": "^1.0.3",
+    "vue-router": "^2.1.1",
     "vue-socket.io": "^1.0.2",
     "webpack": "^1.14.0"
   }

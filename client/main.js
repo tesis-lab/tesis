@@ -1,17 +1,31 @@
 // <!-- Created by Duncan on 12.28.2016 -->
 import Vue from 'vue'
-import Navbar from './vue-components/navbar.vue'
+import VueRouter from 'vue-router'
 import MainContent from './vue-components/main_content.vue'
+import Utils from './js/utils.js'
 
-new Vue({
-  el: 'navbar',
-  components: { Navbar }
-}),
+Vue.use(VueRouter);
 
-new Vue({
-  el: 'main-content',
-  data: {input: null, count: null},
-  components: { MainContent }
+let router = new VueRouter({
+  mode: 'history',
+  routes: [
+    {
+      path: '/',
+      name: 'mainContent',
+      component: MainContent
+    }
+  ],
 });
-// For testing only
-module.exports = {}
+
+new Vue({
+  router,
+  template: `
+    <div>
+      <router-view class="view"></router-view>
+    </div>
+  `
+}).$mount('#app');
+
+
+
+

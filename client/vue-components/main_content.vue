@@ -1,6 +1,7 @@
 <!-- Created by Duncan on 12.28.2016 -->
 <template>
   <div class="main-content">
+    <navbar></navbar>
     <ToolBar :word-count="count"></ToolBar>
     <!-- area to add live data as text is being added -->
     <div class="content-left">
@@ -22,37 +23,19 @@
 </template>
 
 <script>
+  import Navbar from './navbar.vue'
   import ToolBar from './tool_bar.vue'
   import Methods from '../js/main_content.js'
   // HTTP calls ect.
   import Utils from '../js/utils.js'
 
   export default {
-
     created() {
-      // Starts listening on page load
-      // get Unique URL.
-      Utils.fetchChannel((response) => {
-        this.channel = response.body;
-        console.log('this.channel',this.channel);
-        this.ws = new WebSocket('ws://' + window.location.host + '/ws/' + this.channel);
-        // console.log(this.ws);
-        this.ws.onopen = e => {
-          // console.log('onopen',e);
-        };
-        this.ws.onclose = e => {
-          // console.log('onclose',e);
-        };
-        // Whenever we receive a message, update textarea
-        this.ws.onmessage = e => {
-          // console.log('in this.ws.onmessage',e.data)
-          if (e.data !== this.input) {
-            this.input = e.data;
-            // console.log('this.input',this.input)
-            // Needs to be called here as well in order to update word count.
-            this.wordCounter();
-          }
-        };
+      // Url entered in browser.
+      let path = window.location.href.split('#');
+      this.shareChannel((url) => {
+        this.channel = url;
+        window.history.pushState(path[0], '/', this.channel);
       });
     },
     data() {
@@ -64,10 +47,9 @@
         channel: ''
       }
     },
-
-
     components: {
-      ToolBar
+      ToolBar,
+      Navbar
     },
     // Methods are located in js directory
     methods: Methods
