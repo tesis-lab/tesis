@@ -3,10 +3,14 @@
     <div>
 
         <!-- <button @click="start" id="startButton">Start</button> -->
-        <div><button @click="call()" id="callButton" >Call</button></div>
+        <div><button @click="call()" id="callButton" >Call</button>
+        <div><button @click="downloader()" id="downloadButton" >Download</button>
+        <!--<button @click="mute()" id="muteButton" >Mute</button></div>-->
+        <!--<button @click="hangUp()" id="hangUpButton">Stop Video</button>-->
         <!-- <button @click="stop" id="stopButton">Stop</button> -->
-        <div><video id="localVideo" autoplay muted="true"></video></div>
-        <div><video id="remoteVideo" autoplay></video></div>
+            <!--<div v-show="remoteMuted">remote vid muted</div>-->
+        <div><video id="localVideo" @click="toggleAudioMute()" muted="true" autoplay></video></div>
+        <div><video id="remoteVideo" muted="remoteMuted" autoplay></video></div>
     </div>
     <!--need to set remote videos to append to document to accomodate for multiple callers (maybe later feature?)-->
     <!--<div v-el="remoteVideo" id="remoteVideo">-->
@@ -19,6 +23,17 @@
     display: inline-block;
     max-width: 100%;
   }
+  .grayscale {
+  +filter: grayscale(1);
+  }
+  .sepia {
+    +filter: sepia(1);
+  }
+  .blur {
+    +filter: blur(3px);
+  }
+</style>
+<style>
   button {
     width: 100%
   }
@@ -30,10 +45,13 @@
 
     mounted() {
       this.start();
-      this.joinCall();
+      this.wsRTC.onmessage = e => {
+        this.signalHandler(e)
+      };
+      console.log('this.remoteMuted at start', this.remoteMuted)
     },
 
-    props: ['wsRTC'],
+    props: ['wsRTC','saverURI'],
 
     data() {
         return {
@@ -43,9 +61,11 @@
           pc: null,
           localStream:'',
           localVideo:'',
+          theRecorder: null,
+          recordedChuck: [],
           remoteVideo:'',
+          remoteMuted: false,
           peerConnectionConfig: {'iceServers': [{'url': 'stun:stun.l.google.com:19305'}, {'url': 'stun:stun.services.mozilla.com'}]},
-          constraints: { audio: true, video: true }
         }
     },
 
@@ -54,7 +74,22 @@
       start() {
         //this tells the getUserMedia what data to grab and set in the MediaStream object that the method produces,
         //which is then used in the success callback on the MediaStream object that contains the media stream
-          navigator.mediaDevices.getUserMedia({ audio: true, video: true})
+          navigator.mediaDevices.getUserMedia({
+            audio: {
+            googEchoCancellation: true,
+            googAutoGainControl: true,
+            googNoiseSuppression: true,
+            googHighpassFilter: true,
+            googEchoCancellatio2n: true,
+            googAutoGainControl2: true,
+            googNoiseSuppression2: true,
+            googHighpassFilter2: true
+            },
+            video: {
+            width: { ideal: 320 },
+            height: { ideal: 240 },
+            frameRate: { min: 1, max: 15 }
+          }})
           .then(this.gotStream)
           .catch(e => { console.log('getUserMedia() error: ' + e.name);});
       },
@@ -70,6 +105,15 @@
         this.pc = new RTCPeerConnection(this.peerConnectionConfig);
         // set methods on new peer connection object
         this.pc.addStream(this.localStream)
+
+        try {
+          MediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"});
+        } catch (e) { console.log('Recording issues', e); return }
+
+        this.theRecorder = MediaRecorder;
+        MediaRecorder.ondataavailable = e => { this.recordedChuck.push(e.data);}
+        MediaRecorder.start(100);
+
         this.pc.onaddstream = e => {
         //event handler for setRemoteDescription: adds remote stream src to DOM
             this.remoteVideo = document.getElementById('remoteVideo');
@@ -96,13 +140,20 @@
         .catch(e => { console.log('err offer setLocalDescription', e);})
       },
 
-      joinCall() {
-
-        this.wsRTC.onmessage = e => {
+      signalHandler(e) {
 
           let signal = JSON.parse(e.data);
 
+            if(signal.ToggleMediaStreamTrack) {
+            //if signal is media stream muter, mute the remote video stream
+                this.remoteMuted = !this.remoteMuted;
+                console.log('muted from other side', signal, this.remoteMuted);
+                document.getElementById("remoteVideo").muted = this.remoteMuted;
+                console.log(this.remoteMuted, 'this.isremotedMuted in mute signal')
+            }
+
             if (signal.sdp && signal.sdp.type === 'offer' && signal.sdp !== this.pc.localDescription) {
+            console.log('this is a signal', signal)
             //if signal is offer and we are the callee, set SDP offer as remote description
               this.pc.setRemoteDescription(signal.sdp)
               //attach our local stream to the peerConnection object
@@ -125,20 +176,70 @@
           }
 
           if (signal.sdp && signal.sdp.type === 'answer' && signal.sdp !== this.pc.localDescription) {
+            console.log('this is a signal', signal.sdp)
             //on reception of answer as caller, set SDP answer as remote description
             this.pc.setRemoteDescription(signal.sdp)
             .then(() => {
               if (this.pc.remoteDescription && this.iceCandidates.length > 0)
               //if the local and remote description has been set and ice candidates exist
-              for (var i = 0; i < this.iceCandidates.length; i++) {
-              //add ice candidates to peerConnection
-              this.pc.addIceCandidate(this.iceCandidates[i]
-              )}
+                for (var i = 0; i < this.iceCandidates.length; i++) {
+                //add ice candidates to peerConnection
+                  this.pc.addIceCandidate(this.iceCandidates[i])
+                }
             })
             .catch(e => { console.log('err at answer', e)})
           }
-       }
+      },
+
+      downloader() {
+        this.theRecorder.stop();
+        this.localStream.getTracks().forEach(track => { track.stop(); });
+
+        var blob = new Blob(this.recordedChuck, {type: "video/mp4"});
+        var url =  URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        a.href = url;
+        //make rand number padd 4
+        var rand =  ('0000' + Math.floor((Math.random() * 1000))).slice(-4);
+        a.download = this.saverURI + rand +'.mp4';
+        a.click();
+        // setTimeout() here is needed for Firefox.
+        setTimeout(function() { URL.revokeObjectURL(url); }, 100);
+      },
+
+      toggleAudioMute() {
+
+      let audio = this.localStream.getAudioTracks();
+         this.wsRTC.send(JSON.stringify(
+           {ToggleMediaStreamTrack: true,
+            mediaStreamLabel: audio.label
+           })
+         )
+        console.log('toggleAudio signaled')
+        console.log(this.remoteMuted, 'this.isremotedMuted in toggleAudio')
       }
+
+      //hangUp() {
+        //console.log('in hangUp')
+
+        //document.getElementById("localVideo").muted = !this.muted;
+        //document.getElementById("remoteVideo").muted = !this.muted;
+        // this.pc.onstream = function (e) {
+
+        //   if (e.type === 'local') {
+        //       window.streamid = e.streamid;
+        //       connection.streams[e.streamid].mute({
+        //           audio: true,
+        //           video: true
+        //       });
+        //   }
+        // };
+      //}
+
+
+
     }
   }
 </script>
