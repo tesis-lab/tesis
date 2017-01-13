@@ -6,7 +6,7 @@ import Utils from './js/utils.js'
 
 Vue.use(VueRouter);
 
-let router = new VueRouter({
+export let router = new VueRouter({
   mode: 'history',
   routes: [
     {
@@ -25,3 +25,4 @@ new Vue({
     </div>
   `
 }).$mount('#app');
+

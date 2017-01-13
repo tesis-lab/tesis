@@ -16,3 +16,10 @@ client/dist/
 
 .floo
 .flooignore
+
+editor/editor
+
+cert.pem
+certMaker
+key.pem
+

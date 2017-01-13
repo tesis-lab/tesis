@@ -11,7 +11,7 @@ describe('MainContent', () => {
 
   // Inspect the component instance on mount
   it('correctly sets the message when created', () => {
-    const vm = new Vue(MainContent).$mount();
+    const vm = new Vue(MainContent).$mount;
     expect(vm.input).toBe('');
   });
 
