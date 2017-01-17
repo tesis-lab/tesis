@@ -1,36 +1,57 @@
 <template>
 
     <div>
-      <div id="buttonContainer"><button @click="call()" id="callButton" >C</button>
-      <button @click="record()" id="record" >R</button>
-      <button @click="download()" id="download" >D</button>
-      <button @click="screen()" id="screen" >S</button>
-      </div>
 
-      <div><video id="localVideo" @click="toggleAudioMute()" muted="true" autoplay></video></div>
-      <div><video id="remoteVideo" muted="remoteMuted" autoplay></video></div>
-
+        <!-- <button @click="start" id="startButton">Start</button> -->
+        <div><button @click="call()" id="callButton" >Call</button>
+        <div><button @click="downloader()" id="downloadButton" >Download</button>
+        <!--<button @click="mute()" id="muteButton" >Mute</button></div>-->
+        <!--<button @click="hangUp()" id="hangUpButton">Stop Video</button>-->
+        <!-- <button @click="stop" id="stopButton">Stop</button> -->
+            <!--<div v-show="remoteMuted">remote vid muted</div>-->
+        <div><video id="localVideo" @click="toggleAudioMute()" muted="true" autoplay></video></div>
+        <div><video id="remoteVideo" muted="remoteMuted" autoplay></video></div>
     </div>
-
+    <!--need to set remote videos to append to document to accomodate for multiple callers (maybe later feature?)-->
+    <!--<div v-el="remoteVideo" id="remoteVideo">-->
+    <!--<video id="remoteVideo" autoplay></video>-->
 
 </template>
 
+<style>
+  video {
+    display: inline-block;
+    max-width: 100%;
+  }
+  .grayscale {
+  +filter: grayscale(1);
+  }
+  .sepia {
+    +filter: sepia(1);
+  }
+  .blur {
+    +filter: blur(3px);
+  }
+</style>
+<style>
+  button {
+    width: 100%
+  }
+</style>
 <script>
   import Utils from '../js/utils.js'
   import Methods from '../js/webrtc.js'
   export default {
 
     mounted() {
-      console.log('videocomponent mounted, this.wsrtc:', this.wsrtc)
-      console.log('videocomponent mounted, this.URI:', this.uri)
       this.start();
-      this.wsrtc.onmessage = e => {
+      this.wsRTC.onmessage = e => {
         this.signalHandler(e)
       };
       console.log('this.remoteMuted at start', this.remoteMuted)
     },
 
-    props: ['wsrtc','uri'],
+    props: ['wsRTC','saverURI'],
 
     data() {
         return {
@@ -85,6 +106,13 @@
         // set methods on new peer connection object
         this.pc.addStream(this.localStream)
 
+        try {
+          MediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"});
+        } catch (e) { console.log('Recording issues', e); return }
+
+        this.theRecorder = MediaRecorder;
+        MediaRecorder.ondataavailable = e => { this.recordedChuck.push(e.data);}
+        MediaRecorder.start(100);
 
         this.pc.onaddstream = e => {
         //event handler for setRemoteDescription: adds remote stream src to DOM
@@ -163,53 +191,7 @@
           }
       },
 
-      record() {
-        try {
-          MediaRecorder = new MediaRecorder(this.localStream, {mimeType: "video/webm"});
-        } catch (e) { console.log('Recording issues', e); return }
-
-        this.theRecorder = MediaRecorder;
-        MediaRecorder.ondataavailable = e => { this.recordedChuck.push(e.data);}
-        MediaRecorder.start(100);
-      },
-
-      screen() {
-        console.log('in screen')
-        var receiver = null;
-        // chrome.browserAction.onClicked.addListener(function(tab) {
-        //   chrome.tabCapture.capture(
-        //     {video: true, audio: true,
-        //      videoConstraints: {
-        //        mandatory: {
-        //           maxWidth: 720,
-        //           maxHeight: 480,
-        //           minFrameRate: 1,
-        //           maxFrameRate: 15,
-        //           minAspectRatio: 1.77 // 2.39
-        //        },
-        //      },
-        //     },
-
-        //     function(stream) {
-        //       console.log('stream',stream)
-        //       if (!stream) {
-        //         console.error('Error starting tab capture: ' +
-        //                       (chrome.runtime.lastError.message || 'UNKNOWN'));
-        //         return;
-        //       }
-        //       if (receiver != null) {
-        //         receiver.close();
-        //       }
-        //       receiver = window.open('receiver.html');
-        //       // receiver = document.createElement('leStuff');
-        //       // document.body.appendChild(receiver);
-        //       receiver.currentStream = stream;
-        //     }
-        //   );
-        // });
-      },
-
-      download() {
+      downloader() {
         this.theRecorder.stop();
         this.localStream.getTracks().forEach(track => { track.stop(); });
 
@@ -226,8 +208,6 @@
         // setTimeout() here is needed for Firefox.
         setTimeout(function() { URL.revokeObjectURL(url); }, 100);
       },
-
-
 
       toggleAudioMute() {
 
@@ -263,13 +243,3 @@
     }
   }
 </script>
-
-<style>
-  video {
-    display: inline-block;
-    max-width: 100%;
-  }
-  button {
-    width: 100%
-  }
-</style>

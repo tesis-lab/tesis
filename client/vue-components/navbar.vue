@@ -8,19 +8,23 @@
     </div>
     <div class="avatar-area">
       <!-- can change fullname to image.//size throws an error however it is working?! -->
-      <avatar fullname="Duncan Nevin" color="rgb(0, 0, 0)" size=20></avatar>
+      <avatar fullname="Duncan Nevin" color="rgb(0, 0, 0)" size="20"></avatar>
+    </div>
+    <div class="audio">
+      <audiocomponent id="audio" ></audiocomponent>
     </div>
   </nav>
 </template>
 
 <script>
   import Avatar from 'vue-avatar-component'
+  import Audiocomponent from './audio_component.vue'
   import Methods from '../js/navbar.js'
   // HTTP calls ect.
   import Utils from '../js/utils.js'
   export default {
     created() {},
-    components: { Avatar },
+    components: { Avatar, Audiocomponent },
     // Methods are located in js directory
     methods: Methods
   }
