@@ -1,4 +1,3 @@
-<!-- Created by Duncan on 12.28.2016 -->
 <template>
   <div class="left-side">
     <div class="tool-bar">
@@ -23,11 +22,16 @@
 
 <script>
   import Methods from '../js/tool_bar.js'
-  // HTTP calls ect.
-  import Utils from '../js/utils.js'
+  import auth from '../js/auth.js'
 
   export default{
-    created() {},
+    created() {
+    },
+    data() {
+      return {
+        test: 'tool-bar'
+      }
+    },
     props: ['wordCount'],
       // Methods are located in js directory
       methods: Methods

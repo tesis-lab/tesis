@@ -1,4 +1,9 @@
+import Quill from 'quill'
+import docsave from './docsave.js'
+
 module.exports = {
+  quill: '',
+  doc: '',
   textStats(text) {
     let words = text.split(/[ \n\,\.]+/).filter(i => i !== '')
     let length = words.length
@@ -29,5 +34,31 @@ module.exports = {
         quill.updateContents(op)
       })
     })
+  },
+
+  makeQuill() {
+    this.quill = new Quill('#editor', {
+      placeholder: 'Filthy animals.',
+      theme: 'bubble'
+    })
+  },
+
+  quillOn(doc) {
+    this.quill.on('text-change', () => {
+      let text = this.quill.getText()
+      let stats = this.textStats(text)
+      this.time = stats.display
+      this.count = stats.length
+
+      docsave.docData.currentDoc.doc = text;
+    })
+  },
+
+  changeQuill(data) {
+    data = data || ''; // This allows us to delete the entire thing with an empty string
+    this.makeQuill();
+    this.quillOn(this.doc);
+    this.quill.deleteText(0, this.quill.getLength());
+    this.quill.insertText(0, data)
   }
 }

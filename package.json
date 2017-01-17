@@ -45,7 +45,10 @@
   },
   "dependencies": {
     "chance": "^1.0.4",
+    "crypto": "0.0.3",
+    "email-validator": "^1.0.7",
     "express": "^4.14.0",
+    "http": "0.0.0",
     "morgan": "^1.7.0",
     "q": "^1.4.1",
     "quill": "^1.1.9",
