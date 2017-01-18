@@ -65,6 +65,7 @@
     "vue-router": "^2.1.1",
     "webpack": "^1.14.0",
     "websocket-json-stream": "0.0.3",
-    "ws": "^1.1.1"
+    "ws": "^1.1.1",
+    "jquery": "^3.1.1",
   }
 }

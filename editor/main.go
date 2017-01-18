@@ -26,7 +26,6 @@ const (
 // handles routing
 func main() {
   fmt.Println("Go server, go! (8k)")
-
   // run the hub to start websockets
   go h.run()
 
@@ -63,7 +62,7 @@ func main() {
 
   // start 'er up.
   log.Fatal(http.ListenAndServeTLS(PORTSSL, PUBLIC_KEY, PRIV_KEY, r))
-  // log.Fatal(http.ListenAndServe(PORTREG, r))
+  log.Fatal(http.ListenAndServe(PORTREG, r))
 }
 func serveIndex(w http.ResponseWriter, r *http.Request) {
   http.ServeFile(w, r, "client/index.html")
