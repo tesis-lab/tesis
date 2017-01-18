@@ -1,20 +1,24 @@
 <template>
   <div class="main-content">
     <navbar></navbar>
-    <div>
-    <!-- area to add live data as text is being added -->
-     <div class="content-left">
-     <div>
-      <videocomponent id="video" :wsrtc="wsRTC" :uri="URI"></videocomponent>
-     </div>
+    <div class="content">
+
+    <div class="content-left">
+      <videocomponent id="video" :wsrtc="wsrtc" :uri="uri"></videocomponent>
       <div class="doc-info" v-if="count > 0">
         <div>{{ count }} words</div>
         <div>{{ time }} read</div>
       </div>
+      <div class="audio">
+        <audiocomponent id="audio" ></audiocomponent>
+      </div>
     </div>
+
     <div class="content-right">
       <div id="editor"></div>
     </div>
+
+  </div>
   </div>
 </template>
 
@@ -22,6 +26,7 @@
   import Navbar from './navbar.vue'
   import Methods from '../js/main_content.js'
   import Videocomponent from './video_component.vue'
+  import Audiocomponent from './audio_component.vue'
   import Utils from '../js/utils.js'
   import {textStats, docSubscribe} from '../js/editor.js'
   import sharedb from 'sharedb/lib/client'
@@ -33,44 +38,31 @@
   import editor from '../js/editor.js'
 
   export default {
-
     created() {
       let chance = new Chance()
       let c = this.$route.params.channel
-      const token = auth.getToken();
-      this.URI = c !== undefined && /^\w{5}$/.test(c) ? c : chance.word({length: 5})
-      //create RTC websocket
-      this.wsRTC = new WebSocket(`wss://${window.location.host}/ws/${this.URI}rtc`);
+      this.uri = c !== undefined && /^\w{5}$/.test(c) ? c : chance.word({length: 5})
+      //create rtc websocket
+      this.wsrtc = new WebSocket(`wss://${window.location.host}/ws/${this.uri}rtc`);
+
       // update URL display. I still think we can do this with router somehow :S
-      window.history.pushState(window.location.origin, '/', this.URI);
-      // If token exists
-      if (token) {
-        // Checks if token in computer is valid then gets user resource
-        auth.getJwt(this, token);
-      }
+      window.history.pushState(window.location.origin, '/', this.uri);
     },
-
     mounted() {
-
       sharedb.types.register(richText.type)
-      let socket = new WebSocket(`ws://${window.location.hostname}:3000/${this.URI}`)
+      let socket = new WebSocket(`ws://${window.location.hostname}:3000/${this.uri}`)
       const connection = new sharedb.Connection(socket)
-
-
-      //console.log(socket, this.wsRTC)
-
-      // console.log(socket, this.wsRTC)
 
       // For testing reconnection
       window.disconnect = function() {
         connection.close();
       }
-      window.connect = function(URI) {
+      window.connect = function(uri) {
         let socket = new WebSocket(`ws://${window.location.host}`);
         connection.bindToSocket(socket);
       }
       // Storing doc inside editor for access in other components.
-      editor.doc = connection.get('docs', this.URI);
+      editor.doc = connection.get('docs', this.uri);
       // New quill
       editor.makeQuill();
       editor.quillOn(editor.doc);
@@ -81,7 +73,7 @@
     data() {
       return {
         ws: null,
-        wsRTC: null,
+        wsrtc: null,
         wsScreen: null,
         channel: '',
         count: 0,
@@ -114,12 +106,10 @@
 }
 .content-right{
   width: 80%;
-  display: inline-block;
-  float: right;
 }
 .content-left{
   width: 20%;
-  display: inline-block;
+  display: flex;
   justify-content: center;
   align-items: flex-end;
 }
@@ -140,4 +130,3 @@ code {
   color: #f66;
 }
 </style>
-
