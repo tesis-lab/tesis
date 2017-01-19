@@ -1,0 +1,161 @@
+.hidden {
+    display: none;
+}
+
+html {}
+
+body {
+    background-color: white;
+    color: black;
+    font-family: "Helvetica Neue", "Lucida Grande", sans-serif;
+    /*font-size: 90%;*/
+}
+
+button {
+    position: relative;
+    bottom: -6.75px;
+   /* width: 50px;
+    height: 30px;*//*
+    border-radius: 15px;*/
+    /*line-height: 50px;*/
+    top: 0px;
+    text-align: right;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 6px
+    /*align-items: flex-start;*/
+    /*text-align: center;*/
+    cursor: default;
+    padding: 0px 0px 0px 0px;
+    border-width: 0px;
+    border-style: outset;
+    border-color: none;
+    /*border-image: initial;*/
+    background: none;
+
+    box-sizing: border-box;
+}
+button:focus {outline:0;}
+
+button.record {
+    font-size: 49px;
+    color: red;
+
+}
+button.record:hover {
+    color: orange;
+}
+
+button.stop {
+    font-size: 55px;
+    color: black;
+    right: 0px;
+    top: 2px;
+}
+button.stop:hover {
+    color: gray;
+}
+
+button.download {
+    font-size: 24px;
+    color: black;
+    right: -4px;
+
+}
+button.download:hover {
+    color: gray;
+}
+
+button.reset {
+    font-size: 35px;
+    color: black;
+    right: -10px;
+}
+button.reset:hover {
+    color: gray;
+}
+
+#container {
+    /*white-space: nowrap;*/
+    width: 100%;
+    padding: 0px;
+    min-width: 50px;
+    min-height: 72px;
+}
+.timer-container {
+    white-space: nowrap;
+    font-size: 20px;
+    font-weight: bold;
+    position: absolute;
+    right: 9px;
+    top: 30px;
+}
+.button-container {
+    position: relative;
+    position: absolute;
+    right: -3px;
+    top: -20px;
+    /*right: -300px;
+    top: -10px;*/
+    white-space: wrap;
+    width: 100%;
+}
+
+#timer {
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+}
+
+
+/*.tab-capture {
+}*/
+
+.tab-icon {
+    /*width: 100%;*/
+    /*height: 16px;*/
+}
+
+.tab-name {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.tab-timer {
+    width: 100px;
+    font-weight: bold;
+    padding: 1px 0px 0px 25px;
+}
+
+.tab-buttons {
+    text-align: right;
+    width: 50px;
+}
+
+/*hr {
+    width: 100%;
+    margin: 0 0;
+    border: none;
+}*/
+
+/*user agent stylesheet
+/*input, textarea, keygen, select, button {
+    text-rendering: auto;
+    color: initial;
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    margin: 0em 0em 0em 0em;
+    font: 11px BlinkMacSystemFont;*/
+
+
+/*.buttons button {
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    padding: 0px 0px;
+}*/

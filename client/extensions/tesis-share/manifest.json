@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+  "minimum_chrome_version": "34",
+  "name": "Tesis Screen Sharing and Recording",
+  "short_name": "Tesis",
+  "description": "Tesis Tab recording.",
+  "permissions": ["desktopCapture", "tabCapture", "tabs"],
+  "version": "2.0",
+
+  "background": {
+    "persistent": true,
+    "scripts": ["script.js", "recorder.js"]
+  },
+
+  // "externally_connectable": {
+  //   "matches": [
+  //     "http://localhost/*",
+  //     "https://localhost/*"
+  //   ]
+  // },
+
+  "icons": {
+    "16": "tesis-icon.png",
+    "48": "tesis-icon.png",
+    "128": "tesis-icon.png"
+  },
+
+  "browser_action": {
+    "default_icon": "tesis-icon.png",
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [{
+    "matches": [
+      // "<all_urls>"
+      "https://localhost:8443/*"
+    ]
+  }]
+}

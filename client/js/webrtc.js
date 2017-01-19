@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-  
+
   start() {
     this.startCollab();
     //this tells the getUserMedia what data to grab and set in the MediaStream object that the method produces,
@@ -45,7 +45,6 @@ module.exports = {
     this.videos.appendChild(localVideo);
     localVideo.src = URL.createObjectURL(this.localStream);
     localVideo.setAttribute("autoplay", true);
-    localVideo.setAttribute("muted", true);
     localVideo.setAttribute("id", this.localStream.id);
     // instantiate new peer connection
     this.pc = new RTCPeerConnection(this.peerConnectionConfig);
@@ -60,6 +59,7 @@ module.exports = {
         this.videos.appendChild(otherVideo);
         otherVideo.src = URL.createObjectURL(e.stream);
         otherVideo.setAttribute("autoplay", true);
+        localVideo.setAttribute("muted", false);
         otherVideo.muted = false;
         otherVideo.setAttribute("id", e.stream.id);
         //send connected signal
